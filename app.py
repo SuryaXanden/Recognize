@@ -1,5 +1,18 @@
-import requests, re
+import requests, re, pymongo, json
+from bson import ObjectId
 from flask import Flask, jsonify, request, render_template
+
+MONGO_URI = "mongodb://suryaxanden:xyzzyspoonshift1!@ds137605.mlab.com:37605/ner_vals"
+
+client = pymongo.MongoClient(MONGO_URI, connectTimeoutMS = 30000)
+db = client.get_default_database()
+entities_found = db.entities_found
+
+class JSONEncoder(json.JSONEncoder):
+    def default(self, o):
+        if isinstance(o, ObjectId):
+            return str(o)
+        return json.JSONEncoder.default(self, o)
 
 def make_a_call(q):
     
@@ -40,7 +53,10 @@ def make_a_call(q):
         
         est_type = DETAILS_API_DATA['result']['types']
 
-        return {"entity name" : entity_name,"entity type" : est_type}
+        # add to db
+        entities_found.insert_one({ "place_id": place_id, "entity name" : entity_name, "entity type" : est_type })
+        
+        return { "place_id": place_id, "entity name" : entity_name, "entity type" : est_type }
 
     except:
         
