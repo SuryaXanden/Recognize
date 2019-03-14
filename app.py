@@ -1,26 +1,28 @@
 import requests, re, pymongo, json
-from bson import ObjectId
+# from bson import ObjectId
 from flask import Flask, jsonify, request, render_template
 
 MONGO_URI = "mongodb://suryaxanden:xyzzyspoonshift1!@ds137605.mlab.com:37605/ner_vals"
+key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
 
 client = pymongo.MongoClient(MONGO_URI, connectTimeoutMS = 30000)
 db = client.get_default_database()
 entities_found = db.entities_found
 
-class JSONEncoder(json.JSONEncoder):
-    def default(self, o):
-        if isinstance(o, ObjectId):
-            return str(o)
-        return json.JSONEncoder.default(self, o)
+# class JSONEncoder(json.JSONEncoder):
+#     def default(self, o):
+#         if isinstance(o, ObjectId):
+#             return str(o)
+#         return json.JSONEncoder.default(self, o)
 
-def make_a_call(q):
+def make_a_call(q):    
+    
+    global key
     
     q = re.sub(r"\s\s+", ' ', q, 0, re.MULTILINE)
     q = re.sub(r"[^ \w+\s?]", ' ', q, 0, re.MULTILINE)
     q = re.sub(r"\s", '+', q, 0, re.MULTILINE)
 
-    key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
 
     # PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q,key)
     PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q,key)
@@ -37,15 +39,20 @@ def make_a_call(q):
         if not (entity_name and place_id):
             print("Retry")
             return
-            
-    except:
-        print("error in Places API call")
+
+    except IndexError:
+        print("0 results found in PLACES API RESPONSE")
+        return
+
+    except Exception as e:
+        print("Error in Places API call! => [{}]".format(e))
         return
 
     # DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=address_component,scope,type'.format(key,place_id)
     DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=type'.format(key,place_id)
 
     try:
+    # if True:
         
         DETAILS_API_RESPONSE = requests.get(DETAILS_API_URL)
 
@@ -54,13 +61,17 @@ def make_a_call(q):
         est_type = DETAILS_API_DATA['result']['types']
 
         # add to db
-        entities_found.insert_one({ "place_id": place_id, "entity name" : entity_name, "entity type" : est_type })
+        ins = entities_found.insert_one({ "place_id": place_id, "entity name" : entity_name, "entity type" : est_type })
         
         return { "place_id": place_id, "entity name" : entity_name, "entity type" : est_type }
 
-    except:
+    except IndexError:
+        print("0 results found in DETAILS API RESPONSE")
+        return
+
+    except Exception as e:
         
-        print("error in Details API call")
+        print("Error in Details API call! => [{}]".format(e))
         
         return
 
