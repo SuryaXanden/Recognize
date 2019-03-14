@@ -1,0 +1,23 @@
+{
+  "name": "recognize",
+  "version": "1.0.0",
+  "description": "Named Entity Recognition using Google Places and Details API",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SuryaXanden/Recognize.git"
+  },
+  "author": "SuryaXanden",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SuryaXanden/Recognize/issues"
+  },
+  "homepage": "https://github.com/SuryaXanden/Recognize#readme",
+  "dependencies": {
+    "express": "^4.16.4",
+    "node-fetch": "^2.3.0"
+  }
+}
