@@ -32,7 +32,7 @@ def remove_redundancy(q):
         ids = [ i['_id'] for i in entities_found.find({ "entity_name" : {'$regex' : '.*{}.*'.format(q), '$options' : 'i'} })]
         try:
             _ = entities_found.delete_many({'_id': {'$in' : ids[1:]} })
-        except Exception as e:
+        except Exception as e:            
             print(e)
             return
 
@@ -40,21 +40,15 @@ def remove_redundancy(q):
         print(e)
         return
 
-
-def find_in_db(q):
-    """
-    result = db.find entity name
-    if result
-        print
-    else
-        call API
-    """
-    # result = entities_found.find({},{ "_id": 0, "name": 1, "address": 1 })
-    pass
+def find_in_db(q,key,entities_found):
+    result = entities_found.find_one({ "entity_name" : {'$regex' : '.*{}.*'.format(q), '$options' : 'i'} })
+    if result:
+        # status found in db
+        return result
+    else:
+        make_API_call(q,key,entities_found)
 
 def make_API_call(q,key,entities_found):
-    
-    # global key, entities_found
     
     q = preProcessing(q)
 
@@ -92,7 +86,7 @@ def make_API_call(q,key,entities_found):
         
         # add to db
         try:
-            result = entities_found.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_type_total" : entity_type_total, "entity_classification" : entity_classification })
+            entities_found.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_type_total" : entity_type_total, "entity_classification" : entity_classification })
             
             # return status as successfully inserted
             return { "_id": place_id, "entity_name" : entity_name, "entity_type_total" : entity_type_total, "entity_classification" : entity_classification }
@@ -121,7 +115,7 @@ app = Flask(__name__)
 def index():
     if request.args.get("q"): 
         q = request.args.get("q")
-        API_response = make_API_call(q,key,entities_found)
+        API_response = find_in_db(q,key,entities_found)
         if API_response:
             return jsonify(API_response)
         else:

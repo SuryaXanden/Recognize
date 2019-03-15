@@ -11,14 +11,15 @@ entities_found = db.entities_found
 
 # try:
 
-ids = [ i['_id'] for i in entities_found.find({ "entity_name" : {'$regex' : '.*abc.*', '$options' : 'i'} })]
+# ids = [ i['_id'] for i in entities_found.find({ "entity_name" : {'$regex' : '.*abc.*', '$options' : 'i'} })]
 
-print(ids)
+# print(ids)
 
-q = entities_found.delete_many({'_id': {'$in' : ids[1:]} })
+q = entities_found.find_one({'entity_name': 'abc'})
+print(q)
 
-ids = [ i['_id'] for i in entities_found.find({ "entity_name" : {'$regex' : '.*abc.*', '$options' : 'i'} })]
-print(ids)
+# ids = [ i['_id'] for i in entities_found.find({ "entity_name" : {'$regex' : '.*abc.*', '$options' : 'i'} })]
+# print(ids)
 
 # for i in entities_found.find({ "entity_name" : {'$regex' : '.*abc.*', '$options' : 'i'} }):
     # 
