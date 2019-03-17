@@ -42,6 +42,9 @@ def remove_redundancy(q):
 
 def find_in_db(q,key,entities_found):
     result = entities_found.find_one({ "entity_name" : {'$regex' : '.*{}.*'.format(q), '$options' : 'i'} })
+    # result = entities_found.find_one({ "entity_name" : q })
+    print(result)
+    return result
     if result:
         # status found in db
         return result
@@ -50,7 +53,7 @@ def find_in_db(q,key,entities_found):
 
 def make_API_call(q,key,entities_found):
     
-    q = preProcessing(q)
+    # q = preProcessing(q)
 
     # PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q,key)
     PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q,key)
@@ -115,6 +118,7 @@ app = Flask(__name__)
 def index():
     if request.args.get("q"): 
         q = request.args.get("q")
+        q = preProcessing(q)
         API_response = find_in_db(q,key,entities_found)
         if API_response:
             return jsonify(API_response)
