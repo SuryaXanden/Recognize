@@ -98,7 +98,7 @@ def make_API_call(q, key, entities_found):
 
         except pymongo.errors.DuplicateKeyError:
             results = entities_found.find({ "entity_name" : q })
-            if results:
+            if results.count():
                 return responder(False, "Record already exists in the database", results[0]['entity_name'], results[0]['entity_classification'])
             else:
                 return responder(True, "Exception in pymongo call", '', '')
@@ -121,22 +121,46 @@ def index():
 
         if x != "1CE15CS145":
             return render_template('error.html', msg = "Unauthorized API call")
-
-        # QUERY keyword
-        q = request.args.get("q")
-
-        q = preProcessing(q)
-
-        API_response = find_in_db(q, key, entities_found)
-
-        if API_response:
-            return jsonify(API_response)
-
+        
         else:
-            return render_template('error.html', msg = "API call has failed")
+            q = request.args.get("q")
+
+            q = preProcessing(q)
+
+            API_response = find_in_db(q, key, entities_found)
+
+            if API_response:
+                return jsonify(API_response)
+
+            else:
+                return render_template('error.html', msg = "API call has failed")
 
     else:
         return render_template('index.html')
+
+@app.route('/show/', methods = ['GET'])
+def showAll():
+    if request.args.get("x"):
+            x = request.args.get("x")
+
+            if x != "1CE15CS145":
+                return render_template('error.html', msg = "Unauthorized API call")
+
+            else:
+                try:            
+                    results = entities_found.find()
+                    if results.count():                        
+                        answer = [{ "entity_name" : result['entity_name'], "entity_classification" : result['entity_classification'] } for result in results]
+                        return jsonify(answer)
+
+                    else:
+                        return responder(False, "Recognize returned no results", '', '')
+                
+                except IndexError:
+                    return responder(False, "Recognize returned no results", '', '')
+                
+                except Exception as e:
+                    return responder(True, "Exception has occoured in Recognize : {}".format(e), '', '')
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=80, debug=True, threaded=True)

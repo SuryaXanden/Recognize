@@ -13,8 +13,8 @@ entities_found = db.entities_found
 # q = entities_found.find_one({'entity_name': item})
 # print(q)
 
-q = "mc donalds india"
-item = re.compile(".*{}.*".format(q),re.IGNORECASE)
-results = entities_found.find({ "entity_name" : item })
-if results:
-    print(False, "Found in the database",results[0]['entity_name'],results[0]['entity_classification'])
+results = entities_found.find()
+if results.count():
+    answer = [{ "entity_name" : result['entity_name'], "entity_classification" : result['entity_classification'] } for result in results]
+
+print(answer)
