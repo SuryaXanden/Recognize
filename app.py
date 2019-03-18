@@ -20,17 +20,16 @@ def preProcessing(q):
 
     return q
 
-def responder(error, status, entity_name, entity_classification):
+def responder(error, message, entity_name, entity_classification):
     my_response = dict()
-    my_response['error'] = error
-    my_response['status'] = status
-
     data = dict()
 
+    my_response['error'] = error
+    my_response['message'] = message
     data['entity_name'] = entity_name
     data['entity_classification'] = entity_classification
-
     my_response['data'] = data
+
     return my_response
 
 '''
@@ -53,10 +52,14 @@ def find_in_db(q, key, entities_found):
     item = re.compile(".*{}.*".format(q), re.IGNORECASE)
     try:            
         results = entities_found.find({ "entity_name" : item })
-        if results:
+        if results.count():
             return responder(False, "Found in the database", results[0]['entity_name'], results[0]['entity_classification'])
         else:
             return make_API_call(q, key, entities_found)
+    
+    except IndexError:
+        return responder(False, "Recognize returned no results", '', '')
+    
     except Exception as e:
         return responder(True, "Exception has occoured in Recognize : {}".format(e), '', '')
 
@@ -88,7 +91,6 @@ def make_API_call(q, key, entities_found):
         # insert code to classify entity based on its types
         entity_classification = ""
         
-        # add to db
         try:
             entities_found.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_classification" : entity_classification })
 
