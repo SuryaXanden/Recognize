@@ -1,19 +1,12 @@
 import requests, re, pymongo
-# from bson import ObjectId
 from flask import Flask, jsonify, request, render_template
 
 MONGO_URI = "mongodb://suryaxanden:xyzzyspoonshift1!@ds137605.mlab.com:37605/ner_vals"
 key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
 
-client = pymongo.MongoClient(MONGO_URI, connectTimeoutMS = 30000)
+client = pymongo.MongoClient(MONGO_URI)
 db = client['ner_vals']
 entities_found = db.entities_found
-
-# class JSONEncoder(json.JSONEncoder):
-#     def default(self, o):
-#         if isinstance(o, ObjectId):
-#             return str(o)
-#         return json.JSONEncoder.default(self, o)
 
 def preProcessing(q):
     # remove multiple spaces
@@ -27,6 +20,21 @@ def preProcessing(q):
 
     return q
 
+def responder(error, status, entity_name, entity_classification):
+    my_response = dict()
+    my_response['error'] = error
+    my_response['status'] = status
+
+    data = dict()
+
+    data['entity_name'] = entity_name
+    data['entity_classification'] = entity_classification
+
+    my_response['data'] = data
+    return my_response
+
+'''
+# Ask
 def remove_redundancy(q):
     try:
         ids = [ i['_id'] for i in entities_found.find({ "entity_name" : {'$regex' : '.*{}.*'.format(q), '$options' : 'i'} })]
@@ -39,24 +47,21 @@ def remove_redundancy(q):
     except Exception as e:
         print(e)
         return
+'''
 
-def find_in_db(q,key,entities_found):
-    result = entities_found.find_one({ "entity_name" : {'$regex' : '.*{}.*'.format(q), '$options' : 'i'} })
-    # result = entities_found.find_one({ "entity_name" : q })
-    print(result)
-    return result
-    if result:
-        # status found in db
-        return result
-    else:
-        make_API_call(q,key,entities_found)
+def find_in_db(q, key, entities_found):
+    item = re.compile(".*{}.*".format(q), re.IGNORECASE)
+    try:            
+        results = entities_found.find({ "entity_name" : item })
+        if results:
+            return responder(False, "Found in the database", results[0]['entity_name'], results[0]['entity_classification'])
+        else:
+            return make_API_call(q, key, entities_found)
+    except Exception as e:
+        return responder(True, "Exception has occoured in Recognize : {}".format(e), '', '')
 
-def make_API_call(q,key,entities_found):
-    
-    # q = preProcessing(q)
-
-    # PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q,key)
-    PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q,key)
+def make_API_call(q, key, entities_found):
+    PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(q, key)
 
     try:
         PLACES_API_RESPONSE = requests.get(PLACES_API_URL)
@@ -65,19 +70,15 @@ def make_API_call(q,key,entities_found):
         place_id = PLACES_API_DATA['candidates'][0]['place_id']
 
         if not (entity_name and place_id):
-            print("Retry")
-            return
+            return responder(True, "Retry", '', '')
 
     except IndexError:
-        print("0 results found in PLACES API RESPONSE")
-        return
+        return responder(False, "Places API returned no results", '', '')
 
     except Exception as e:
-        print("Error in Places API call! => [{}]".format(e))
-        return
+        return responder(True, "Exception has occoured in Places API call : {}".format(e), '', '')
 
-    # DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=address_component,scope,type'.format(key,place_id)
-    DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=type'.format(key,place_id)
+    DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=type'.format(key, place_id)
 
     try:
         DETAILS_API_RESPONSE = requests.get(DETAILS_API_URL)
@@ -89,43 +90,51 @@ def make_API_call(q,key,entities_found):
         
         # add to db
         try:
-            entities_found.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_type_total" : entity_type_total, "entity_classification" : entity_classification })
-            
-            # return status as successfully inserted
-            return { "_id": place_id, "entity_name" : entity_name, "entity_type_total" : entity_type_total, "entity_classification" : entity_classification }
+            entities_found.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_classification" : entity_classification })
+
+            return responder(False, "Database updated with 1 new record", entity_name, entity_classification)
 
         except pymongo.errors.DuplicateKeyError:
-            print("Record already exists")
-            # return status as exists
-            return
+            results = entities_found.find({ "entity_name" : q })
+            if results:
+                return responder(False, "Record already exists in the database", results[0]['entity_name'], results[0]['entity_classification'])
+            else:
+                return responder(True, "Exception in pymongo call", '', '')
 
         except Exception as e:
-            print(e)
-            # return status as exception in db ins
-            return 
+            return responder(True, "Pymongo Exception : {}".format(e), '', '')
 
     except IndexError:
-        print("0 results found in DETAILS API RESPONSE")
-        return
+        return responder(False, "Details API returned no results", '', '')
 
     except Exception as e:        
-        print("Error in Details API call! => [{}]".format(e))        
-        return
+        return responder(True, "Exception has occoured in Details API call : {}".format(e), '', '')
 
 app = Flask(__name__)
 
 @app.route('/', methods = ['GET'])
 def index():
-    if request.args.get("q"): 
+    if request.args.get("q") and request.args.get("x"):
+        x = request.args.get("x")
+
+        if x != "1CE15CS145":
+            return render_template('error.html', msg = "Unauthorized API call")
+
+        # QUERY keyword
         q = request.args.get("q")
+
         q = preProcessing(q)
-        API_response = find_in_db(q,key,entities_found)
+
+        API_response = find_in_db(q, key, entities_found)
+
         if API_response:
             return jsonify(API_response)
+
         else:
-            return render_template('error.html', msg = "API call has failed", issue = "" )
+            return render_template('error.html', msg = "API call has failed")
+
     else:
         return render_template('index.html')
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80,debug=True,threaded=True)
+    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)

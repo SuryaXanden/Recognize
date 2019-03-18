@@ -1,0 +1,8 @@
+{
+	"error": "true or false",
+	"status": "actual response",
+	"data": {
+		"entity_name": "ABC",
+		"entity_classification": "XYZ"
+	}
+}
