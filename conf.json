@@ -1,9 +1,3 @@
 {
-    "food" : [
-            "bar",
-            "restaurant",
-            "food",
-            "cafe",
-            "night_club"
-          ]
+	"food": ["bar", "restaurant", "food", "cafe", "night_club"]
 }
