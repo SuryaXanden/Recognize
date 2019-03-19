@@ -1,0 +1,10 @@
+{
+	"exclude": [
+		["visa", ""],
+		["master", ""],
+		[" (\\w+) pay", ""],
+		["amt", ""],
+		["thfrgn", ""],
+		["myfrgn", ""]
+	]
+}
