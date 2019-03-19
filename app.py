@@ -1,7 +1,5 @@
 import requests, re, pymongo, json
-from flask import Flask, jsonify, request, render_template
-from flask_restful import Api, Resource
-# reqparse, abort
+from flask import Flask, jsonify, request
 
 MONGO_URI = "mongodb://suryaxanden:xyzzyspoonshift1!@ds137605.mlab.com:37605/ner_vals"
 Google_Places_API_key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
@@ -35,16 +33,6 @@ def URL_Preprocessing(queriedString):
     # replace space with +
     queriedString = re.sub(r"\s", '+', queriedString, 0, re.MULTILINE)
     return queriedString.lower()
-
-
-'''
-Remove
-(seq)
-(amt)
-VISA
-MASTER
-.+ Pay
-'''
 
 Flask_db_copy = ''
 def copy_from_db():
@@ -104,14 +92,15 @@ def Recognize(queriedString, Google_Places_API_key, database):
         return make_response_JSON(True, "Exception has occoured in Places API call : {}".format(e), '', '')
 
     DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=type'.format(Google_Places_API_key, place_id)
-    print(DETAILS_API_URL)
+    # print(DETAILS_API_URL)
     try:
         DETAILS_API_RESPONSE = requests.get(DETAILS_API_URL)
         DETAILS_API_DATA = DETAILS_API_RESPONSE.json()        
         entity_type_total = DETAILS_API_DATA['result']['types']
         # print(DETAILS_API_DATA)
         # insert code to classify entity based on its types
-        entity_classification = ""
+        entity_classification = entity_type_total
+        # entity_classification = ""
         
         try:
             database.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_classification" : entity_classification })
@@ -146,26 +135,29 @@ def add_header(r):
 
 @app.route('/')
 def index():
-    
     if request.args.get("x") and request.args.get("x") != "1CE15CS145":
-        return render_template('error.html', msg = "Unauthorized API call")        
+        temp_json = make_response_JSON(True, "Usage : localhost/?x=<SECRET_KEY>&q=<ENTITY>", '', '')
+        return jsonify(temp_json)
     if request.args.get("q") and request.args.get("x") == '1CE15CS145':
         queriedString = request.args.get("q")
         queriedString = URL_Preprocessing(queriedString)
-        # print(queriedString)
 
         if copy_db_to_server_status == "ok":
             API_response = find_record_in_database(queriedString, Google_Places_API_key, database)
             if API_response:
                 return jsonify(API_response)
             else:
-                # return render_template('error.html', msg = "")
-                return make_response_JSON(True, "API call has failed", '', '')
+                temp_json = make_response_JSON(True, "API call has failed", '', '')
+                return jsonify(temp_json)
+                
         elif copy_db_to_server_status == "err":
-            return make_response_JSON(True, "Cannot copy database to server", '', '')
+            temp_json = make_response_JSON(True, "Cannot copy database to server", '', '')
+            return jsonify(temp_json)
         
     else:
-        return render_template('index.html')
+        temp_json = make_response_JSON(True, "Usage : localhost/?x=<SECRET_KEY>&q=<ENTITY>", '', '')
+        return jsonify(temp_json)
+
 '''
 @app.route('/show/')
 def showAll():
@@ -190,5 +182,6 @@ def showAll():
     else:
         return render_template('index.html')
 '''
+
 if __name__ == "__main__":
     app.run(host = '0.0.0.0', port = 80, debug = True, threaded = True)
