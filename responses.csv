@@ -1,0 +1,4 @@
+entity_name
+{'candidates': [{'name': 'Adelaide Sailing Club', 'place_id': 'ChIJnavRDzHbsGoRlONDJrGzJQY'}, {'name': 'Henley Sailing Club', 'place_id': 'ChIJ-QL1m8fEsGoRXi6ZEiHKeog'}], 'status': 'OK'}
+{'candidates': [{'name': 'Apollo Bay Bakery', 'place_id': 'ChIJV16A38I202oRFWwZOGsPklE'}], 'status': 'OK'}
+{'candidates': [{'name': 'Apollo Bay Hotel', 'place_id': 'ChIJ5-VBAsM202oRpWwAmgHfrMY'}], 'status': 'OK'}

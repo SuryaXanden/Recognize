@@ -1,6 +1,9 @@
 {
-    "food" :
-    {
-        
-    }
+    "food" : [
+            "bar",
+            "restaurant",
+            "food",
+            "cafe",
+            "night_club"
+          ]
 }

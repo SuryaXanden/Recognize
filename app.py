@@ -83,7 +83,7 @@ def find_record_in_database(queriedString, Google_Places_API_key, database):
         return make_response_JSON(True, "Exception has occoured in Recognize : {}".format(e), '', '')
 
 def Recognize(queriedString, Google_Places_API_key, database):
-    PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&Google_Places_API_key={}'.format(queriedString, Google_Places_API_key)
+    PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(queriedString, Google_Places_API_key)
     # print(PLACES_API_URL)
     try:
         PLACES_API_RESPONSE = requests.get(PLACES_API_URL)
@@ -103,7 +103,7 @@ def Recognize(queriedString, Google_Places_API_key, database):
     except Exception as e:
         return make_response_JSON(True, "Exception has occoured in Places API call : {}".format(e), '', '')
 
-    DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?Google_Places_API_key={}&placeid={}&fields=type'.format(Google_Places_API_key, place_id)
+    DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=type'.format(Google_Places_API_key, place_id)
     print(DETAILS_API_URL)
     try:
         DETAILS_API_RESPONSE = requests.get(DETAILS_API_URL)

@@ -25,10 +25,4 @@ for line in file_data:
     # remove spaces from beginning and ending of the string
     line = line.strip()
 
-
     print(line)
-
-    # with open('op.csv', 'a') as f:
-    # # print(line)
-# print(omit['internal'][2][0])
-  

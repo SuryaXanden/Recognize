@@ -1,0 +1,125 @@
+Food
+- Cafes, restaurants, bars
+- Groceries
+- Tobacco and alcohol
+- Other groceries
+
+Utility services
+- Heating
+- Security
+- Electricity
+- Natural gas
+- Rent and maintenance
+- Telephone, internet, TV, computer
+- Water
+- Other utility expenses
+
+Household
+- Home, construction, garden
+- Household goods
+- Household products and electronics
+
+Transportation
+- Parking
+- Fuel
+- Transportation expenses
+- Vehicle purchase, maintenance
+
+Clothing and shoes
+- Shoes
+- Clothing
+- Other clothing expenses
+
+Shopping mall
+
+Leisure activities, traveling
+- Charity
+- Gifts
+- Books, newspapers, magazines
+- Pets
+- Accommodation, travel expenses
+- Sport and sports goods
+- Theatre, music, cinema
+- Hobbies and other leisure time activities
+- Nightlife
+
+Education, health and beauty
+- Education and courses
+- Beauty, cosmetics
+- Social security
+- Health and pharmaceuticals
+- Other expenses for education, health, beauty
+
+Children
+- Children's clothing
+- Hobbies and toys
+- Pocket money
+- School and baby-sitting
+- Other child-related expenses
+
+Online transactions
+- Online payments
+- Online retail purchases
+- Online services
+- Online money transfer
+
+Insurance
+- Life insurance
+- Non-life insurance
+- Insurance payments related to a loan
+- Other insurance expenses
+
+Savings and investments
+- Investments
+- Savings
+- Social Security Fund
+- Other investments
+
+Loans and financial services
+- Financial services and commission
+- Fines
+- Loans
+- Payday loans
+- Consumer loans
+- Leasing
+- Car Leasing
+- Mortgage
+- Credit card repayment
+- Credit line
+- Student loans
+- Overdraft
+- Policy Loan
+- Dishonours
+
+Cash withdrawal
+
+Gambling
+
+Bailiffs
+
+Alimony and child support
+
+Debt collection
+
+Personal transfers
+- To own account
+- To account of relatives
+- Other personal transfers
+
+Savings and loan associations
+
+Taxes and government fees
+
+Postal services
+
+Invoices
+
+Cheque
+
+Enquiries
+
+Unions and associations
+
+Currency exchange
+
+Administrative violations
