@@ -1,0 +1,47 @@
+[
+    {
+        "candidates": [
+            {
+                "name": "Adelaide Sailing Club",
+                "place_id": "ChIJnavRDzHbsGoRlONDJrGzJQY"
+            }
+        ],
+        "status": "OK"
+    },
+    {
+        "candidates": [
+            {
+                "name": "Apollo Bay Bakery",
+                "place_id": "ChIJV16A38I202oRFWwZOGsPklE"
+            }
+        ],
+        "status": "OK"
+    },
+    {
+        "candidates": [
+            {
+                "name": "Apollo Bay Hotel",
+                "place_id": "ChIJ5-VBAsM202oRpWwAmgHfrMY"
+            }
+        ],
+        "status": "OK"
+    },
+    {
+        "candidates": [
+            {
+                "name": "Lakes Resort Hotel",
+                "place_id": "ChIJZW19UwXEsGoRbsJtvQfZNpU"
+            }
+        ],
+        "status": "OK"
+    },
+    {
+        "candidates": [
+            {
+                "name": "Rose Family Chiropractic",
+                "place_id": "ChIJbyHHiePIsGoRVlZ4JSqYgWU"
+            }
+        ],
+        "status": "OK"
+    }
+]

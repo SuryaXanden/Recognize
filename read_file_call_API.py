@@ -2,15 +2,16 @@ import json, requests
 from time import sleep
 
 Google_Places_API_key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
-lines = ''
+
 with open('read input.csv','r') as f: # 
     lines = f.readlines() # .split('\n')
     # lines = lines
 
 for line in lines:
-    sleep(1)
+    sleep(3)
     PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(line.strip(), Google_Places_API_key)
-    print(PLACES_API_URL)
+    # print(PLACES_API_URL)
+    print("Checking for:", line)
     try:
         PLACES_API_RESPONSE = requests.get(PLACES_API_URL)
         PLACES_API_DATA = PLACES_API_RESPONSE.json()
