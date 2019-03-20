@@ -3,7 +3,7 @@ from time import sleep
 
 Google_Places_API_key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
 lines = ''
-with open('test data.txt','r') as f: # 
+with open('read input.csv','r') as f: # 
     lines = f.readlines() # .split('\n')
     # lines = lines
 

@@ -100,6 +100,7 @@ def Recognize(queriedString, Google_Places_API_key, database):
         # print(DETAILS_API_DATA)
         # insert code to classify entity based on its types
         entity_classification = entity_type_total
+        
         # entity_classification = ""
         
         try:
