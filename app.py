@@ -1,5 +1,6 @@
 import requests, re, pymongo, json
 from flask import Flask, jsonify, request
+import unidecode
 
 MONGO_URI = "mongodb://suryaxanden:xyzzyspoonshift1!@ds137605.mlab.com:37605/ner_vals"
 Google_Places_API_key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ"
@@ -26,6 +27,8 @@ def Text_Preprocessing(text_blob):
     return text_blob.lower()
 
 def URL_Preprocessing(queriedString):
+    # remove accents
+    queriedString = unidecode.unidecode(queriedString)
     # remove multiple spaces
     queriedString = re.sub(r"\s\s+", ' ', queriedString, 0, re.MULTILINE)
     # remove weird symbols
@@ -72,7 +75,6 @@ def find_record_in_database(queriedString, Google_Places_API_key, database):
 
 def Recognize(queriedString, Google_Places_API_key, database):
     PLACES_API_URL = 'https://maps.googleapis.com/maps/api/place/findplacefromtext/json?inputtype=textquery&fields=name,place_id&input={}&key={}'.format(queriedString, Google_Places_API_key)
-    # print(PLACES_API_URL)
     try:
         PLACES_API_RESPONSE = requests.get(PLACES_API_URL)
         PLACES_API_DATA = PLACES_API_RESPONSE.json()
@@ -80,7 +82,7 @@ def Recognize(queriedString, Google_Places_API_key, database):
         place_id = PLACES_API_DATA['candidates'][0]['place_id']
         
         # DEBUG
-        print("entity_name: ",entity_name, "place_id: ",place_id)
+        print("entity_name: ", entity_name, "place_id: ", place_id)
 
         if not (entity_name and place_id):
             return make_response_JSON(True, "Retry", '', '')
@@ -92,27 +94,19 @@ def Recognize(queriedString, Google_Places_API_key, database):
         return make_response_JSON(True, "Exception has occoured in Places API call : {}".format(e), '', '')
 
     DETAILS_API_URL = 'https://maps.googleapis.com/maps/api/place/details/json?key={}&placeid={}&fields=type'.format(Google_Places_API_key, place_id)
-    # print(DETAILS_API_URL)
     try:
         DETAILS_API_RESPONSE = requests.get(DETAILS_API_URL)
         DETAILS_API_DATA = DETAILS_API_RESPONSE.json()        
         entity_type_total = DETAILS_API_DATA['result']['types']
-        # print(DETAILS_API_DATA)
+
         # insert code to classify entity based on its types
         entity_classification = entity_type_total
         
-        # entity_classification = ""
-        
         try:
             database.insert_one({ "_id": place_id, "entity_name" : entity_name, "entity_classification" : entity_classification })
-
             return make_response_JSON(False, "Database updated with 1 new record", entity_name, entity_classification)
 
         except pymongo.errors.DuplicateKeyError:
-            # results = database.find({ "entity_name" : queriedString })
-            # if results.count():
-            # else:
-                # return make_response_JSON(True, "Exception in pymongo call", '', '')
             return make_response_JSON(False, "Record already exists in the database", entity_name, entity_classification)
 
         except Exception as e:
