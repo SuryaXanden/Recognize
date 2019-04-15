@@ -1,0 +1,27 @@
+<form id="go" method="post">
+    <input type="text" name="q" id="q" autofocus/>
+    <input type="submit" value="Query"/>
+</form>
+<script>
+    var build_url = async (event) =>
+    {
+        event.preventDefault();
+        let q = document.querySelector('#q').value;
+        q = q.replace(/\s/gm,"+");
+        
+        let key = "AIzaSyDLTDdea9gVmUj8rhsKf_y0p1WcV01o5AQ";
+        let input = q;
+        
+        let goto_url = `https://maps.googleapis.com/maps/api/place/details/json?key=${key}&placeid=${input}&fields=type`;
+		
+		
+		
+        window.open(goto_url);
+/*		let resp = await fetch(goto_url);
+		resp.then(i=>document.write(i));
+*/
+    };
+    
+    var form = document.getElementById("go");
+    form.addEventListener("submit", build_url, true);
+</script>
